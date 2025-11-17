@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai</string>
+
+    <string-array name="units_array">
+        <item>un</item>
+        <item>kg</item>
+        <item>g</item>
+        <item>L</item>
+        <item>ml</item>
+        <item>pacote</item>
+        <item>caixa</item>
+    </string-array>
+
+    <string-array name="categories_array">
+        <item>Fruta</item>
+        <item>Verdura</item>
+        <item>Carne</item>
+        <item>Laticínios</item>
+        <item>Padaria</item>
+        <item>Bebidas</item>
+        <item>Limpeza</item>
+        <item>Higiene</item>
+        <item>Outros</item>
+    </string-array>
+
+</resources>

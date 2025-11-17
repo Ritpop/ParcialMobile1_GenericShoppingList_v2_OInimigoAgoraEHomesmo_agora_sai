@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/white" />
+    <foreground
+
+        android:drawable="@drawable/appgenlistacompralogo"
+        android:insetLeft="10dp"
+        android:insetRight="10dp"
+        android:insetTop="10dp"
+        android:insetBottom="10dp"
+
+    />
+    <monochrome android:drawable="@drawable/appgenlistacompralogo" />
+</adaptive-icon>

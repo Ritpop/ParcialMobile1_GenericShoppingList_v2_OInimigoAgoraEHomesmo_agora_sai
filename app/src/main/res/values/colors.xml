@@ -1,0 +1,21 @@
+<resources>
+    <!-- branco -->
+    <color name="green_primary">#4CAF50</color>
+    <color name="green_light">#C8E6C9</color>
+    <color name="green_dark">#1B5E20</color>
+    <color name="brown_accent">#795548</color>
+    <color name="brown_light">#D7CCC8</color>
+    <color name="brown_dark">#3E2723</color>
+    <color name="off_white">#FFFCF5</color>
+
+    <!-- preto -->
+    <color name="green_dark_primary">#A5D6A7</color>
+    <color name="green_dark_container">#2E7D32</color>
+    <color name="brown_dark_accent">#BCAAA4</color>
+    <color name="brown_dark_container">#5D4037</color>
+    <color name="dark_grey">#1C1B1F</color>
+    <color name="dark_grey_surface">#2A282E</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
