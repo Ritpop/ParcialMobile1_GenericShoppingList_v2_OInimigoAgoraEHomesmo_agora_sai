@@ -1,8 +1,8 @@
 package com.example.hypergenericlistforbuyingstuff.models
 
 data class ShoppingList(
-    val id: Int,
-    var name: String,
-    var imagePath: String? = null,
-    val ownerId: Int
+    val id: String = "",
+    val name: String = "",
+    val imagePath: String? = null,
+    val ownerId: String = ""
 )
