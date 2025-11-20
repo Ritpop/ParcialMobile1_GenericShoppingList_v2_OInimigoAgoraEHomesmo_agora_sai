@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai</string>
+    <string name="app_name">hypergenericlistforbuyingstuff</string>
 
     <string-array name="units_array">
         <item>un</item>

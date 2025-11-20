@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai"
+    namespace = "com.example.hypergenericlistforbuyingstuff"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai"
+        applicationId = "com.example.hypergenericlistforbuyingstuff"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

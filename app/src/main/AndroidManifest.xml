@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai">
+        android:theme="@style/Theme.hypergenericlistforbuyingstuff">
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true">

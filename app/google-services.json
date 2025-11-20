@@ -23,6 +23,25 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469801939522:android:6df39d82e472c1a8d733db",
+        "android_client_info": {
+          "package_name": "com.example.hypergenericlistforbuyingstuff"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwbgXnIPPIxpDI6dyoK9DLwttmxUIoNXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"
