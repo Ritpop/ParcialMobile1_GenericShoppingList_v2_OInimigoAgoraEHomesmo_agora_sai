@@ -1,4 +1,4 @@
-package com.example.hypergenericlistforbuyingstuff.activities
+package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view
 
 import android.os.Bundle
 import android.widget.Toast

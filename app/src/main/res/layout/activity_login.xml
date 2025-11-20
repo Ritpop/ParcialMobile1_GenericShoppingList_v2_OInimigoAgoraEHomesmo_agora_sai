@@ -48,6 +48,17 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/textViewForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="end"
+        android:text="Esqueci minha senha"
+        android:textColor="?attr/colorPrimary"
+        android:clickable="true"
+        android:focusable="true" />
+
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="match_parent"

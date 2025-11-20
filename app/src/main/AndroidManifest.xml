@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.hypergenericlistforbuyingstuff">
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".features.auth.presentation.view.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".features.auth.presentation.view.RegisterActivity" />
         <activity android:name=".activities.ListsActivity" />
         <activity android:name=".activities.ListItemsActivity" />
         <activity android:name=".activities.CategoryManagerActivity" />

@@ -13,6 +13,7 @@ import com.example.hypergenericlistforbuyingstuff.data.DataStore
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListsBinding
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
 import com.example.hypergenericlistforbuyingstuff.adapters.ShoppingListAdapter
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view.LoginActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 
