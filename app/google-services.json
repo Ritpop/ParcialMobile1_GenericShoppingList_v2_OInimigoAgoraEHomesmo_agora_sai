@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469801939522",
+    "project_id": "mobile-i-final",
+    "storage_bucket": "mobile-i-final.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469801939522:android:d52c9bd9193ad3bed733db",
+        "android_client_info": {
+          "package_name": "com.example.ParcialMobile1_GenericShoppingList_v2_OInimigoAgoraEHomesmo_agora_sai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwbgXnIPPIxpDI6dyoK9DLwttmxUIoNXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
