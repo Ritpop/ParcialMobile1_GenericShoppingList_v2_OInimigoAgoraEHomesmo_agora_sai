@@ -2,6 +2,7 @@ package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.re
 
 import android.net.Uri
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
+import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
 
 interface ShoppingListRepository {
@@ -10,4 +11,10 @@ interface ShoppingListRepository {
     suspend fun updateList(list: ShoppingList, imageUri: Uri?): Resource<Unit>
     suspend fun deleteList(listId: String): Resource<Unit>
     suspend fun getListById(listId: String): ShoppingList?
+
+    suspend fun getItems(listId: String): Resource<List<ListItem>>
+    suspend fun addItem(listId: String, item: ListItem): Resource<String>
+    suspend fun updateItem(listId: String, item: ListItem): Resource<Unit>
+    suspend fun deleteItem(listId: String, itemId: String): Resource<Unit>
+    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean): Resource<Unit>
 }

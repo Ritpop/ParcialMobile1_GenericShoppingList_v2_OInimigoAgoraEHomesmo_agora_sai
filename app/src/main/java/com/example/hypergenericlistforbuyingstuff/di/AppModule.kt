@@ -10,6 +10,7 @@ import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.rep
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.FirebaseShoppingListDataSource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ShoppingListDataSource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListDetailsViewModel
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,4 +34,6 @@ val appModule = module {
 
     viewModel { ListsViewModel(get(), get()) }
     viewModel { ListDetailsViewModel(get(), get()) }
+
+    viewModel { ListItemsViewModel(get()) }
 }

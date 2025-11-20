@@ -1,11 +1,11 @@
 package com.example.hypergenericlistforbuyingstuff.models
 
 data class ListItem(
-    val id: Int,
-    var name: String,
-    var quantity: Double,
-    var unit: String,
-    var category: String,
-    var isChecked: Boolean = false,
-    val listId: Int
+    val id: String = "",
+    val name: String = "",
+    val quantity: Double = 0.0,
+    val unit: String = "",
+    val category: String = "",
+    val isChecked: Boolean = false,
+    val listId: String = ""
 )
