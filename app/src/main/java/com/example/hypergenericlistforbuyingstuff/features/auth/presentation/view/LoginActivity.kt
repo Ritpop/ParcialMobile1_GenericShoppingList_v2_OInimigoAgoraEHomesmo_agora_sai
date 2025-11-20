@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.hypergenericlistforbuyingstuff.activities.ListsActivity
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view.RegisterActivity
 import com.example.hypergenericlistforbuyingstuff.data.DataStore
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityLoginBinding
