@@ -1,4 +1,5 @@
-package com.example.hypergenericlistforbuyingstuff.activities
+package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view
+
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,14 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
+import com.example.hypergenericlistforbuyingstuff.adapters.CategorySpinnerAdapter
+import com.example.hypergenericlistforbuyingstuff.adapters.ListItemAdapter
 import com.example.hypergenericlistforbuyingstuff.data.DataStore
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityAddItemBinding
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListItemsBinding
 import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
-import com.example.hypergenericlistforbuyingstuff.adapters.CategorySpinnerAdapter
-import com.example.hypergenericlistforbuyingstuff.adapters.ListItemAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 

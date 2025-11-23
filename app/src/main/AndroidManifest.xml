@@ -26,7 +26,7 @@
 
         <activity android:name=".features.auth.presentation.view.RegisterActivity" />
         <activity android:name=".features.shoppinglist.presentation.view.ListsActivity" />
-        <activity android:name=".activities.ListItemsActivity" />
+        <activity android:name=".features.shoppinglist.presentation.view.ListItemsActivity" />
         <activity android:name=".activities.CategoryManagerActivity" />
         <activity android:name=".features.shoppinglist.presentation.view.ListDetailsActivity" />
 

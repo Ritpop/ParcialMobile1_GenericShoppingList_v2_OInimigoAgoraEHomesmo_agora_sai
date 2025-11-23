@@ -16,7 +16,7 @@ import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListsBindi
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view.LoginActivity
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
-import com.example.hypergenericlistforbuyingstuff.activities.ListItemsActivity
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListItemsActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
