@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -16,9 +15,9 @@ import com.example.hypergenericlistforbuyingstuff.adapters.ListItemAdapter
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityAddItemBinding
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListItemsBinding
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.Category
-import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -29,10 +28,13 @@ class ListItemsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityListItemsBinding
     private lateinit var adapter: ListItemAdapter
 
-    private val viewModel: ListItemsViewModel by viewModel()
+    private val itemsViewModel: ListItemsViewModel by viewModel()
+    private val categoryViewModel: CategoryViewModel by viewModel()
 
     private var listId: String? = null
     private var listName: String? = null
+
+    private var availableCategories: List<Category> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +54,8 @@ class ListItemsActivity : AppCompatActivity() {
         setupRecyclerView()
         setupObservers()
 
-        viewModel.loadItems(listId!!)
+        itemsViewModel.loadItems(listId!!)
+        categoryViewModel.loadCategories()
 
         binding.fabAddItem.setOnClickListener {
             showItemDialog(null)
@@ -66,10 +69,9 @@ class ListItemsActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.itemsState.observe(this) { resource ->
+        itemsViewModel.itemsState.observe(this) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-
                 }
                 is Resource.Success -> {
                     val items = resource.data
@@ -82,10 +84,14 @@ class ListItemsActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.operationState.observe(this) { resource ->
+        itemsViewModel.operationState.observe(this) { resource ->
             if (resource is Resource.Error) {
                 Toast.makeText(this, resource.message, Toast.LENGTH_SHORT).show()
             }
+        }
+
+        categoryViewModel.categories.observe(this) { categories ->
+            availableCategories = categories
         }
     }
 
@@ -103,7 +109,7 @@ class ListItemsActivity : AppCompatActivity() {
         adapter = ListItemAdapter(
             emptyList(),
             onCheckboxClick = { clickedItem ->
-                viewModel.toggleItemChecked(listId!!, clickedItem)
+                itemsViewModel.toggleItemChecked(listId!!, clickedItem)
             },
             onItemLongClick = { clickedItem ->
                 showItemOptionsDialog(clickedItem)
@@ -121,7 +127,7 @@ class ListItemsActivity : AppCompatActivity() {
                 when (which) {
                     0 -> showItemDialog(item)
                     1 -> {
-                        viewModel.deleteItem(listId!!, item.id)
+                        itemsViewModel.deleteItem(listId!!, item.id)
                         Snackbar.make(binding.root, "Item excluído", Snackbar.LENGTH_SHORT).show()
                     }
                 }
@@ -138,18 +144,12 @@ class ListItemsActivity : AppCompatActivity() {
         dialogBinding.textViewTitle.text = if (isEditing) "Editar Item" else "Adicionar Item"
         dialogBinding.buttonAddItem.text = if (isEditing) "Salvar" else "Adicionar"
 
-
-        val categories = listOf(
-            Category("Fruta", "🍎"), Category("Verdura", "🥦"), Category("Carne", "🥩"),
-            Category("Laticínios", "🥛"), Category("Padaria", "🍞"), Category("Bebidas", "🥤"),
-            Category("Limpeza", "🧼"), Category("Higiene", "🪥"), Category("Outros", "📦")
-        )
-
         val unitAdapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item)
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.spinnerUnit.adapter = unitAdapter
 
-        val categoryAdapter = CategorySpinnerAdapter(this, categories)
+        val categoriesToShow = if (availableCategories.isNotEmpty()) availableCategories else listOf(Category(name="Geral", emoji="📦"))
+        val categoryAdapter = CategorySpinnerAdapter(this, categoriesToShow)
         dialogBinding.spinnerCategory.adapter = categoryAdapter
 
         if (item != null) {
@@ -160,7 +160,7 @@ class ListItemsActivity : AppCompatActivity() {
             val unitIndex = units.indexOf(item.unit).coerceAtLeast(0)
             dialogBinding.spinnerUnit.setSelection(unitIndex)
 
-            val catIndex = categories.indexOfFirst { it.name == item.category }.coerceAtLeast(0)
+            val catIndex = categoriesToShow.indexOfFirst { it.name == item.category }.coerceAtLeast(0)
             dialogBinding.spinnerCategory.setSelection(catIndex)
         }
 
@@ -177,13 +177,14 @@ class ListItemsActivity : AppCompatActivity() {
 
             val quantity = quantityStr.toDoubleOrNull() ?: 0.0
             val unit = dialogBinding.spinnerUnit.selectedItem.toString()
-            val category = (dialogBinding.spinnerCategory.selectedItem as Category).name
+            val categoryObj = dialogBinding.spinnerCategory.selectedItem as Category
+            val categoryName = categoryObj.name
 
             if (isEditing) {
-                val updatedItem = item!!.copy(name = name, quantity = quantity, unit = unit, category = category)
-                viewModel.updateItem(listId!!, updatedItem)
+                val updatedItem = item!!.copy(name = name, quantity = quantity, unit = unit, category = categoryName)
+                itemsViewModel.updateItem(listId!!, updatedItem)
             } else {
-                viewModel.addItem(listId!!, name, quantity, unit, category)
+                itemsViewModel.addItem(listId!!, name, quantity, unit, categoryName)
             }
             dialog.dismiss()
         }
@@ -197,13 +198,13 @@ class ListItemsActivity : AppCompatActivity() {
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.searchItems(listId!!, query ?: "")
+                itemsViewModel.searchItems(listId!!, query ?: "")
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText.isNullOrBlank()) {
-                    viewModel.loadItems(listId!!)
+                    itemsViewModel.loadItems(listId!!)
                 }
                 return true
             }

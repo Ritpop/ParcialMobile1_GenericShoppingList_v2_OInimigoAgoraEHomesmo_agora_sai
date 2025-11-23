@@ -2,6 +2,7 @@ package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.re
 
 import android.net.Uri
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
+import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
 
@@ -20,5 +21,7 @@ interface ShoppingListRepository {
     suspend fun searchLists(userId: String, query: String): Resource<List<ShoppingList>>
     suspend fun searchItems(listId: String, query: String): Resource<List<ListItem>>
 
-
+    suspend fun getCategories(): Resource<List<Category>>
+    suspend fun addCategory(name: String, emoji: String): Resource<Unit>
+    suspend fun deleteCategory(categoryId: String): Resource<Unit>
 }

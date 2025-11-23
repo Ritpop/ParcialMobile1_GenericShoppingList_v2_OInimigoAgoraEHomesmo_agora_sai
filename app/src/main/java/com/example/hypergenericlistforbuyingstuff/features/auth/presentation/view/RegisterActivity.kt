@@ -1,41 +1,69 @@
 package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.hypergenericlistforbuyingstuff.data.DataStore
+import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityRegisterBinding
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.AuthViewModel
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
+
+    private val viewModel: AuthViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupObservers()
+
         binding.buttonCreate.setOnClickListener {
-            val name = binding.editTextName.text.toString()
-            val email = binding.editTextEmail.text.toString()
-            val password = binding.editTextPassword.text.toString()
-            val confirmPassword = binding.editTextConfirmPassword.text.toString()
+            val name = binding.editTextName.text.toString().trim()
+            val email = binding.editTextEmail.text.toString().trim()
+            val password = binding.editTextPassword.text.toString().trim()
+            val confirmPassword = binding.editTextConfirmPassword.text.toString().trim()
 
             if (name.isBlank() || email.isBlank() || password.isBlank()) {
-                Toast.makeText(this, "Preeencha todos os campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (password != confirmPassword) {
-                Toast.makeText(this, "As senhas deve ser iguais", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Senhas não conferem", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val newUser = DataStore.registerUser(name, email, password)
-            if (newUser != null) {
-                Toast.makeText(this, "Usuario criado com Sucesso!", Toast.LENGTH_SHORT).show()
-                finish()             } else {
-                Toast.makeText(this, "Este email esta em uso", Toast.LENGTH_SHORT).show()
+            viewModel.register(name, email, password)
+        }
+    }
+
+    private fun setupObservers() {
+        viewModel.authState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Loading -> {
+                    binding.buttonCreate.isEnabled = false
+                    binding.buttonCreate.text = "Criando..."
+                }
+                is Resource.Success -> {
+                    binding.buttonCreate.isEnabled = true
+                    Toast.makeText(this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this, ListsActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
+                is Resource.Error -> {
+                    binding.buttonCreate.isEnabled = true
+                    binding.buttonCreate.text = "Criar"
+                    Toast.makeText(this, "Erro: ${resource.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

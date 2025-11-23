@@ -1,6 +1,7 @@
 package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source
 
 import android.net.Uri
+import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
 
@@ -15,8 +16,13 @@ interface ShoppingListDataSource {
     suspend fun addItem(listId: String, item: ListItem): String
     suspend fun updateItem(listId: String, item: ListItem)
     suspend fun deleteItem(listId: String, itemId: String)
-    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean)4
+    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean)
 
     suspend fun searchLists(userId: String, query: String): List<ShoppingList>
     suspend fun searchItems(listId: String, query: String): List<ListItem>
+
+    suspend fun getCategories(): List<Category>
+    suspend fun addCategory(category: Category)
+    suspend fun deleteCategory(categoryId: String)
+
 }

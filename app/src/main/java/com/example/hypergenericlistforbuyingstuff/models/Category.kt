@@ -1,6 +1,7 @@
 package com.example.hypergenericlistforbuyingstuff.models
 
 data class Category(
-    val name: String,
-    val emoji: String
+    val id: String = "",
+    val name: String = "",
+    val emoji: String = "📦"
 )

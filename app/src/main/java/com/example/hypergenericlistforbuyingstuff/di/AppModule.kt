@@ -9,6 +9,7 @@ import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.rep
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepositoryImpl
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.FirebaseShoppingListDataSource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ShoppingListDataSource
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListDetailsViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
@@ -36,4 +37,8 @@ val appModule = module {
     viewModel { ListDetailsViewModel(get(), get()) }
 
     viewModel { ListItemsViewModel(get()) }
+
+    viewModel { CategoryViewModel(get()) }
+
+
 }

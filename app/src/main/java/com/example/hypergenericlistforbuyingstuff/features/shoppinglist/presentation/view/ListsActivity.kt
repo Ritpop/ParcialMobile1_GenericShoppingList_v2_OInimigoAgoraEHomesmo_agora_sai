@@ -163,7 +163,8 @@ class ListsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_manage_categories -> {
-                Toast.makeText(this, "Gerenciamento de categorias em manutenção", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, CategoryManagerActivity::class.java)
+                startActivity(intent)
                 true
             }
             R.id.action_logout -> {

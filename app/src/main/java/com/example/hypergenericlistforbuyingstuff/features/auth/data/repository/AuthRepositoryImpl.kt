@@ -2,6 +2,7 @@ package com.example.hypergenericlistforbuyingstuff.features.auth.data.repository
 
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.AuthDataSource
+import com.example.hypergenericlistforbuyingstuff.models.User
 
 class AuthRepositoryImpl(private val dataSource: AuthDataSource) : AuthRepository {
 

@@ -3,6 +3,7 @@ package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.re
 import android.net.Uri
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ShoppingListDataSource
+import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
 
@@ -13,7 +14,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val lists = dataSource.getLists(userId)
             Resource.Success(lists.sortedBy { it.name })
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Erro ao carregar listas")
+            Resource.Error(e.message ?: "Erro ao carregar itens")
         }
     }
 
@@ -23,7 +24,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val id = dataSource.addList(list, imageUri)
             Resource.Success(id)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Erro ao adicionar listas")
+            Resource.Error(e.message ?: "Erro ao adicionar lista")
         }
     }
 
@@ -32,7 +33,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.updateList(list, imageUri)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Erro ao atualizar lista")
+            Resource.Error(e.message ?: "Erro ao atualizar a lista")
         }
     }
 
@@ -58,7 +59,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val items = dataSource.getItems(listId)
             Resource.Success(items)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Erron ao carregar itens")
+            Resource.Error(e.message ?: "Erro ao carregar itens")
         }
     }
 
@@ -94,7 +95,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.toggleItemChecked(listId, itemId, isChecked)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Erro ao marcaar")
+            Resource.Error(e.message ?: "Erro ao marcar")
         }
     }
     override suspend fun searchLists(userId: String, query: String): Resource<List<ShoppingList>> {
@@ -112,6 +113,44 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             Resource.Success(items)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Erro de busca")
+        }
+    }
+    override suspend fun getCategories(): Resource<List<Category>> {
+        return try {
+            val categories = dataSource.getCategories()
+            if (categories.isEmpty()) {
+                val defaults = listOf(
+                    Category(name = "Fruta", emoji = "🍎"),
+                    Category(name = "Verdura", emoji = "🥦"),
+                    Category(name = "Carne", emoji = "🥩"),
+                    Category(name = "Padaria", emoji = "🍞"),
+                    Category(name = "Bebidas", emoji = "🥤")
+                )
+                defaults.forEach { dataSource.addCategory(it) }
+                Resource.Success(defaults)
+            } else {
+                Resource.Success(categories)
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Erro ao carregar categorias")
+        }
+    }
+
+    override suspend fun addCategory(name: String, emoji: String): Resource<Unit> {
+        return try {
+            dataSource.addCategory(Category(name = name, emoji = emoji))
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error("Erro ao adicionar categoria")
+        }
+    }
+
+    override suspend fun deleteCategory(categoryId: String): Resource<Unit> {
+        return try {
+            dataSource.deleteCategory(categoryId)
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error("Erro ao deletar categoria")
         }
     }
 }
