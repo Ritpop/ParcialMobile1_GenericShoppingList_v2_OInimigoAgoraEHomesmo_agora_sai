@@ -13,59 +13,84 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
 import com.example.hypergenericlistforbuyingstuff.adapters.CategorySpinnerAdapter
 import com.example.hypergenericlistforbuyingstuff.adapters.ListItemAdapter
-import com.example.hypergenericlistforbuyingstuff.data.DataStore
+import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityAddItemBinding
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListItemsBinding
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ListItemsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListItemsBinding
     private lateinit var adapter: ListItemAdapter
-    private var listId: Int = -1
+
+    private val viewModel: ListItemsViewModel by viewModel()
+
+    private var listId: String? = null
+    private var listName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityListItemsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        listId = intent.getIntExtra("LIST_ID", -1)
-        if (listId == -1) {
+        listId = intent.getStringExtra("LIST_ID")
+        listName = intent.getStringExtra("LIST_NAME")
+
+        if (listId == null) {
             Toast.makeText(this, "Erro: ID da Lista não Encontrado", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupUI()
         setupRecyclerView()
+        setupObservers()
+
+        viewModel.loadItems(listId!!)
 
         binding.fabAddItem.setOnClickListener {
             showItemDialog(null)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateDataAndCheckEmptyState()
+    private fun setupUI() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = listName ?: "Lista de Compras"
     }
 
-    private fun updateDataAndCheckEmptyState() {
-        val currentList = DataStore.getListById(listId)
-        if (currentList == null) {
-            finish()
-            return
+    private fun setupObservers() {
+        viewModel.itemsState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Loading -> {
+
+                }
+                is Resource.Success -> {
+                    val items = resource.data
+                    adapter.updateItems(items)
+                    toggleEmptyState(items.isEmpty())
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
+                }
+            }
         }
-        binding.toolbar.title = currentList.name
 
-        val groupedItems = DataStore.getGroupedItemsForList(listId)
-        adapter.updateItems(groupedItems)
+        viewModel.operationState.observe(this) { resource ->
+            if (resource is Resource.Error) {
+                Toast.makeText(this, resource.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
-                if (groupedItems.isEmpty()) {
+    private fun toggleEmptyState(isEmpty: Boolean) {
+        if (isEmpty) {
             binding.recyclerViewItems.visibility = View.GONE
             binding.emptyStateLayoutItems.visibility = View.VISIBLE
         } else {
@@ -78,8 +103,7 @@ class ListItemsActivity : AppCompatActivity() {
         adapter = ListItemAdapter(
             emptyList(),
             onCheckboxClick = { clickedItem ->
-                DataStore.toggleItemChecked(clickedItem.id)
-                updateDataAndCheckEmptyState()
+                viewModel.toggleItemChecked(listId!!, clickedItem)
             },
             onItemLongClick = { clickedItem ->
                 showItemOptionsDialog(clickedItem)
@@ -91,27 +115,14 @@ class ListItemsActivity : AppCompatActivity() {
 
     private fun showItemOptionsDialog(item: ListItem) {
         val options = arrayOf("Editar", "Excluir")
-
         MaterialAlertDialogBuilder(this)
             .setTitle(item.name)
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showItemDialog(item)
                     1 -> {
-                        val itemToDelete = item
-                        DataStore.deleteItem(itemToDelete.id)
-                        updateDataAndCheckEmptyState()
-
-                        Snackbar.make(
-                            binding.root,
-                            "${itemToDelete.name} excluído",
-                            Snackbar.LENGTH_LONG
-                        )
-                            .setAction("Undo") {
-                                DataStore.restoreItem(itemToDelete)
-                                updateDataAndCheckEmptyState()
-                            }
-                            .show()
+                        viewModel.deleteItem(listId!!, item.id)
+                        Snackbar.make(binding.root, "Item excluído", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -121,22 +132,23 @@ class ListItemsActivity : AppCompatActivity() {
     private fun showItemDialog(item: ListItem?) {
         val dialogBinding = ActivityAddItemBinding.inflate(layoutInflater)
         val builder = MaterialAlertDialogBuilder(this)
-        builder.setView(dialogBinding.root)
+            .setView(dialogBinding.root)
 
         val isEditing = item != null
-
-        val titleView = dialogBinding.root.findViewById<TextView>(R.id.textViewTitle)
-        titleView.text = if (isEditing) "Editar Item" else "Adicionar Item"
-
+        dialogBinding.textViewTitle.text = if (isEditing) "Editar Item" else "Adicionar Item"
         dialogBinding.buttonAddItem.text = if (isEditing) "Salvar" else "Adicionar"
 
-        val unitAdapter = ArrayAdapter.createFromResource(
-            this, R.array.units_array, android.R.layout.simple_spinner_item
+
+        val categories = listOf(
+            Category("Fruta", "🍎"), Category("Verdura", "🥦"), Category("Carne", "🥩"),
+            Category("Laticínios", "🥛"), Category("Padaria", "🍞"), Category("Bebidas", "🥤"),
+            Category("Limpeza", "🧼"), Category("Higiene", "🪥"), Category("Outros", "📦")
         )
+
+        val unitAdapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item)
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.spinnerUnit.adapter = unitAdapter
 
-        val categories = DataStore.getCategories()
         val categoryAdapter = CategorySpinnerAdapter(this, categories)
         dialogBinding.spinnerCategory.adapter = categoryAdapter
 
@@ -144,11 +156,12 @@ class ListItemsActivity : AppCompatActivity() {
             dialogBinding.editTextItemName.setText(item.name)
             dialogBinding.editTextQuantity.setText(item.quantity.toString())
 
-            val unitPosition = resources.getStringArray(R.array.units_array).indexOf(item.unit)
-            dialogBinding.spinnerUnit.setSelection(if (unitPosition >= 0) unitPosition else 0)
+            val units = resources.getStringArray(R.array.units_array)
+            val unitIndex = units.indexOf(item.unit).coerceAtLeast(0)
+            dialogBinding.spinnerUnit.setSelection(unitIndex)
 
-            val categoryPosition = categories.indexOfFirst { it.name == item.category }
-            dialogBinding.spinnerCategory.setSelection(if (categoryPosition >= 0) categoryPosition else 0)
+            val catIndex = categories.indexOfFirst { it.name == item.category }.coerceAtLeast(0)
+            dialogBinding.spinnerCategory.setSelection(catIndex)
         }
 
         val dialog = builder.create()
@@ -156,43 +169,22 @@ class ListItemsActivity : AppCompatActivity() {
         dialogBinding.buttonAddItem.setOnClickListener {
             val name = dialogBinding.editTextItemName.text.toString().trim()
             val quantityStr = dialogBinding.editTextQuantity.text.toString().trim()
-            val unit = dialogBinding.spinnerUnit.selectedItem.toString()
-            val selectedCategory = dialogBinding.spinnerCategory.selectedItem as Category
-            val categoryName = selectedCategory.name
 
-            dialogBinding.textInputLayoutItemName.error = null
-            dialogBinding.textInputLayoutQuantity.error = null
-
-            var hasError = false
-            if (name.isBlank()) {
-                dialogBinding.textInputLayoutItemName.error = "O nome pode ser vazio"
-                hasError = true
-            }
-
-            if (quantityStr.isBlank()) {
-                dialogBinding.textInputLayoutQuantity.error = "A quantidade é obrigatoria"
-                hasError = true
-            }
-
-            val quantity = quantityStr.toDoubleOrNull()
-            if (quantityStr.isNotBlank() && quantity == null) {
-                dialogBinding.textInputLayoutQuantity.error = "Valor invalido"
-                hasError = true
-            }
-
-            if (hasError) {
+            if (name.isBlank() || quantityStr.isBlank()) {
+                Toast.makeText(this, "Preencha nome e quantidade", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (item != null) {
-                DataStore.updateItem(item.id, name, quantity!!, unit, categoryName)
-                Snackbar.make(binding.root, "Item salvo", Snackbar.LENGTH_SHORT).show()
-            } else {
-                DataStore.addItemToList(listId, name, quantity!!, unit, categoryName)
-                Snackbar.make(binding.root, "Item adicionado", Snackbar.LENGTH_SHORT).show()
-            }
+            val quantity = quantityStr.toDoubleOrNull() ?: 0.0
+            val unit = dialogBinding.spinnerUnit.selectedItem.toString()
+            val category = (dialogBinding.spinnerCategory.selectedItem as Category).name
 
-            updateDataAndCheckEmptyState()
+            if (isEditing) {
+                val updatedItem = item!!.copy(name = name, quantity = quantity, unit = unit, category = category)
+                viewModel.updateItem(listId!!, updatedItem)
+            } else {
+                viewModel.addItem(listId!!, name, quantity, unit, category)
+            }
             dialog.dismiss()
         }
         dialog.show()
@@ -204,64 +196,27 @@ class ListItemsActivity : AppCompatActivity() {
         val searchView = searchItem?.actionView as? SearchView
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = false
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.searchItems(listId!!, query ?: "")
+                return true
+            }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val fullList = DataStore.getGroupedItemsForList(listId)
-                val filteredList = if (newText.isNullOrBlank()) {
-                    fullList
-                } else {
-                    val result = mutableListOf<GroupedListItem>()
-                    var currentHeader: GroupedListItem.Header? = null
-
-                    fullList.forEach { groupedItem ->
-                        when (groupedItem) {
-                            is GroupedListItem.Header -> currentHeader = groupedItem
-                            is GroupedListItem.Item -> {
-                                if (groupedItem.listItem.name.contains(
-                                        newText,
-                                        ignoreCase = true
-                                    )
-                                ) {
-                                    if (currentHeader != null && !result.contains(currentHeader)) {
-                                        result.add(currentHeader!!)
-                                    }
-                                    result.add(groupedItem)
-                                }
-                            }
-                        }
-                    }
-                    result
+                if (newText.isNullOrBlank()) {
+                    viewModel.loadItems(listId!!)
                 }
-                adapter.updateItems(filteredList)
-
-                                if (filteredList.isEmpty()) {
-                    binding.recyclerViewItems.visibility = View.GONE
-                    binding.emptyStateLayoutItems.visibility = View.VISIBLE
-                } else {
-                    binding.recyclerViewItems.visibility = View.VISIBLE
-                    binding.emptyStateLayoutItems.visibility = View.GONE
-                }
-
                 return true
             }
         })
-
-        searchView?.setOnCloseListener {
-            updateDataAndCheckEmptyState()
-            false
-        }
-
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
+                finish()
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }

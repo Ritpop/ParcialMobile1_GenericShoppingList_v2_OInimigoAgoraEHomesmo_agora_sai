@@ -17,4 +17,8 @@ interface ShoppingListRepository {
     suspend fun updateItem(listId: String, item: ListItem): Resource<Unit>
     suspend fun deleteItem(listId: String, itemId: String): Resource<Unit>
     suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean): Resource<Unit>
+    suspend fun searchLists(userId: String, query: String): Resource<List<ShoppingList>>
+    suspend fun searchItems(listId: String, query: String): Resource<List<ListItem>>
+
+
 }

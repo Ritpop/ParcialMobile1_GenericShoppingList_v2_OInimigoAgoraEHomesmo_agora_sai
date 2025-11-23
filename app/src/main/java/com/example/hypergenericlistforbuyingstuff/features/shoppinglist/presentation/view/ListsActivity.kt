@@ -140,24 +140,19 @@ class ListsActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.lists_menu, menu)
 
-        // Configuração básica da busca local (filtragem na lista já carregada)
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as? SearchView
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean = false
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.searchLists(query ?: "")
+                return true
+            }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val currentList = (viewModel.listsState.value as? Resource.Success)?.data ?: emptyList()
-
-                val filteredList = if (newText.isNullOrBlank()) {
-                    currentList
-                } else {
-                    currentList.filter { it.name.contains(newText, ignoreCase = true) }
+                if (newText.isNullOrBlank()) {
+                    viewModel.loadLists()
                 }
-
-                adapter.updateLists(filteredList)
-                toggleEmptyState(filteredList.isEmpty())
                 return true
             }
         })

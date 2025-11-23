@@ -13,7 +13,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val lists = dataSource.getLists(userId)
             Resource.Success(lists.sortedBy { it.name })
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error fetching lists")
+            Resource.Error(e.message ?: "Erro ao carregar listas")
         }
     }
 
@@ -23,7 +23,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val id = dataSource.addList(list, imageUri)
             Resource.Success(id)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error adding list")
+            Resource.Error(e.message ?: "Erro ao adicionar listas")
         }
     }
 
@@ -32,7 +32,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.updateList(list, imageUri)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error updating list")
+            Resource.Error(e.message ?: "Erro ao atualizar lista")
         }
     }
 
@@ -41,7 +41,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.deleteList(listId)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error deleting list")
+            Resource.Error(e.message ?: "Erro ao deletar lista")
         }
     }
 
@@ -58,7 +58,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val items = dataSource.getItems(listId)
             Resource.Success(items)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error fetching items")
+            Resource.Error(e.message ?: "Erron ao carregar itens")
         }
     }
 
@@ -67,7 +67,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             val id = dataSource.addItem(listId, item)
             Resource.Success(id)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error adding item")
+            Resource.Error(e.message ?: "Erro ao adicionar item")
         }
     }
 
@@ -76,7 +76,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.updateItem(listId, item)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error updating item")
+            Resource.Error(e.message ?: "Erro ao atualizar item")
         }
     }
 
@@ -85,7 +85,7 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.deleteItem(listId, itemId)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error deleting item")
+            Resource.Error(e.message ?: "Erro ao deletar item")
         }
     }
 
@@ -94,7 +94,24 @@ class ShoppingListRepositoryImpl(private val dataSource: ShoppingListDataSource)
             dataSource.toggleItemChecked(listId, itemId, isChecked)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error toggling check")
+            Resource.Error(e.message ?: "Erro ao marcaar")
+        }
+    }
+    override suspend fun searchLists(userId: String, query: String): Resource<List<ShoppingList>> {
+        return try {
+            val lists = dataSource.searchLists(userId, query)
+            Resource.Success(lists)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Erro de busca")
+        }
+    }
+
+    override suspend fun searchItems(listId: String, query: String): Resource<List<ListItem>> {
+        return try {
+            val items = dataSource.searchItems(listId, query)
+            Resource.Success(items)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Erro de busca")
         }
     }
 }

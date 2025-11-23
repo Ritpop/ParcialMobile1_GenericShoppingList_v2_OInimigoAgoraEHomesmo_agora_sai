@@ -113,4 +113,20 @@ class ListItemsViewModel(
             else -> "📦"
         }
     }
+    fun searchItems(listId: String, query: String) {
+        if (query.isBlank()) {
+            loadItems(listId)
+            return
+        }
+        _itemsState.value = Resource.Loading
+        viewModelScope.launch {
+            val result = repository.searchItems(listId, query)
+            if (result is Resource.Success) {
+                val grouped = groupItems(result.data)
+                _itemsState.value = Resource.Success(grouped)
+            } else if (result is Resource.Error) {
+                _itemsState.value = Resource.Error(result.message)
+            }
+        }
+    }
 }

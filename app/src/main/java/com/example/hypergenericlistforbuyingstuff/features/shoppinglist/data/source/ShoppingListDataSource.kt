@@ -15,5 +15,8 @@ interface ShoppingListDataSource {
     suspend fun addItem(listId: String, item: ListItem): String
     suspend fun updateItem(listId: String, item: ListItem)
     suspend fun deleteItem(listId: String, itemId: String)
-    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean)
+    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean)4
+
+    suspend fun searchLists(userId: String, query: String): List<ShoppingList>
+    suspend fun searchItems(listId: String, query: String): List<ListItem>
 }

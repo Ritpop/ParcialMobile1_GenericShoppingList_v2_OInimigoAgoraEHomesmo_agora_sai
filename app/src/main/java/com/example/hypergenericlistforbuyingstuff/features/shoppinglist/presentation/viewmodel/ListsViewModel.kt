@@ -29,7 +29,7 @@ class ListsViewModel(
                 val result = listRepository.getLists(currentUser.id)
                 _listsState.value = result
             } else {
-                _listsState.value = Resource.Error("usuario não foi autentcado")
+                _listsState.value = Resource.Error("usuario não foi autenticado")
             }
         }
     }
@@ -47,6 +47,20 @@ class ListsViewModel(
     fun logout() {
         viewModelScope.launch {
             authRepository.logout()
+        }
+    }
+    fun searchLists(query: String) {
+        if (query.isBlank()) {
+            loadLists()
+            return
+        }
+        _listsState.value = Resource.Loading
+        viewModelScope.launch {
+            val user = authRepository.getCurrentUser()
+            if (user != null) {
+                val result = listRepository.searchLists(user.id, query)
+                _listsState.value = result
+            }
         }
     }
 }

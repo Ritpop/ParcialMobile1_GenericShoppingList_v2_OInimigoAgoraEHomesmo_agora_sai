@@ -80,4 +80,21 @@ class FirebaseShoppingListDataSource(
         collection.document(listId).collection("items").document(itemId)
             .update("checked", isChecked).await()
     }
-}
+    override suspend fun searchLists(userId: String, query: String): List<ShoppingList> {
+        val snapshot = collection
+            .whereEqualTo("ownerId", userId)
+            .whereGreaterThanOrEqualTo("name", query)
+            .whereLessThanOrEqualTo("name", query + "\uf8ff")
+            .get()
+            .await()
+        return snapshot.toObjects(ShoppingList::class.java)
+    }
+
+    override suspend fun searchItems(listId: String, query: String): List<ListItem> {
+        val snapshot = collection.document(listId).collection("items")
+            .whereGreaterThanOrEqualTo("name", query)
+            .whereLessThanOrEqualTo("name", query + "\uf8ff")
+            .get()
+            .await()
+        return snapshot.toObjects(ListItem::class.java)
+    }
