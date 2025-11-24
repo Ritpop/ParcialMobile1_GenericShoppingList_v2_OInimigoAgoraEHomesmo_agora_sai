@@ -84,20 +84,26 @@ class FirebaseShoppingListDataSource(
     override suspend fun searchLists(userId: String, query: String): List<ShoppingList> {
         val snapshot = collection
             .whereEqualTo("ownerId", userId)
-            .whereGreaterThanOrEqualTo("name", query)
-            .whereLessThanOrEqualTo("name", query + "\uf8ff")
             .get()
             .await()
-        return snapshot.toObjects(ShoppingList::class.java)
+
+        val allLists = snapshot.toObjects(ShoppingList::class.java)
+
+        return allLists.filter {
+            it.name.contains(query, ignoreCase = true)
+        }
     }
 
     override suspend fun searchItems(listId: String, query: String): List<ListItem> {
         val snapshot = collection.document(listId).collection("items")
-            .whereGreaterThanOrEqualTo("name", query)
-            .whereLessThanOrEqualTo("name", query + "\uf8ff")
             .get()
             .await()
-        return snapshot.toObjects(ListItem::class.java)
+
+        val allItems = snapshot.toObjects(ListItem::class.java)
+
+        return allItems.filter {
+            it.name.contains(query, ignoreCase = true)
+        }
     }
     override suspend fun getCategories(): List<Category> {
         val snapshot = firestore.collection("categories").orderBy("name").get().await()
