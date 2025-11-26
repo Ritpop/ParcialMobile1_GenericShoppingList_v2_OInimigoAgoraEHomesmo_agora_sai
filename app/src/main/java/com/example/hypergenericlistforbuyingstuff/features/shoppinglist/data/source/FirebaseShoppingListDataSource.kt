@@ -28,7 +28,11 @@ class FirebaseShoppingListDataSource(
             ref.putFile(imageUri).await()
             imageUrl = ref.downloadUrl.await().toString()
         }
-        val listToSave = list.copy(id = newListId, imagePath = imageUrl)
+        val listToSave = list.copy(
+            id = newListId,
+            imagePath = imageUrl,
+            nameLower = list.name.lowercase()
+        )
         collection.document(newListId).set(listToSave).await()
         return newListId
     }
@@ -40,7 +44,11 @@ class FirebaseShoppingListDataSource(
             ref.putFile(imageUri).await()
             imageUrl = ref.downloadUrl.await().toString()
         }
-        val updates = mapOf("name" to list.name, "imagePath" to imageUrl)
+        val updates = mapOf(
+            "name" to list.name,
+            "nameLower" to list.name.lowercase(),
+            "imagePath" to imageUrl
+        )
         collection.document(list.id).update(updates).await()
     }
 
@@ -64,13 +72,18 @@ class FirebaseShoppingListDataSource(
     override suspend fun addItem(listId: String, item: ListItem): String {
         val itemsCollection = collection.document(listId).collection("items")
         val newItemId = itemsCollection.document().id
-        val itemToSave = item.copy(id = newItemId, listId = listId)
+        val itemToSave = item.copy(
+            id = newItemId,
+            listId = listId,
+            nameLower = item.name.lowercase()
+        )
         itemsCollection.document(newItemId).set(itemToSave).await()
         return newItemId
     }
 
     override suspend fun updateItem(listId: String, item: ListItem) {
-        collection.document(listId).collection("items").document(item.id).set(item).await()
+        val itemToUpdate = item.copy(nameLower = item.name.lowercase())
+        collection.document(listId).collection("items").document(item.id).set(itemToUpdate).await()
     }
 
     override suspend fun deleteItem(listId: String, itemId: String) {
@@ -79,32 +92,30 @@ class FirebaseShoppingListDataSource(
 
     override suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean) {
         collection.document(listId).collection("items").document(itemId)
-            .update("checked", isChecked).await()
+            .update("isChecked", isChecked).await()
     }
+
     override suspend fun searchLists(userId: String, query: String): List<ShoppingList> {
+        val queryLower = query.lowercase()
         val snapshot = collection
             .whereEqualTo("ownerId", userId)
+            .whereGreaterThanOrEqualTo("nameLower", queryLower)
+            .whereLessThanOrEqualTo("nameLower", queryLower + "\uf8ff")
             .get()
             .await()
-
-        val allLists = snapshot.toObjects(ShoppingList::class.java)
-
-        return allLists.filter {
-            it.name.contains(query, ignoreCase = true)
-        }
+        return snapshot.toObjects(ShoppingList::class.java)
     }
 
     override suspend fun searchItems(listId: String, query: String): List<ListItem> {
+        val queryLower = query.lowercase()
         val snapshot = collection.document(listId).collection("items")
+            .whereGreaterThanOrEqualTo("nameLower", queryLower)
+            .whereLessThanOrEqualTo("nameLower", queryLower + "\uf8ff")
             .get()
             .await()
-
-        val allItems = snapshot.toObjects(ListItem::class.java)
-
-        return allItems.filter {
-            it.name.contains(query, ignoreCase = true)
-        }
+        return snapshot.toObjects(ListItem::class.java)
     }
+
     override suspend fun getCategories(): List<Category> {
         val snapshot = firestore.collection("categories").orderBy("name").get().await()
         return snapshot.toObjects(Category::class.java)
