@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">hypergenericlistforbuyingstuff</string>
+    <string name="acessar">Acessar</string>
+    <string name="criar_conta">Criar Conta</string>
+    <string name="esqueci_minha_senha">Esqueci minha senha</string>
+    <string name="senha">Senha</string>
+    <string name="email">Email</string>
+    <string name="lista_de_compras">Lista de Compras</string>
+    <string name="nome_completo">Nome Completo</string>
 
     <string-array name="units_array">
         <item>un</item>

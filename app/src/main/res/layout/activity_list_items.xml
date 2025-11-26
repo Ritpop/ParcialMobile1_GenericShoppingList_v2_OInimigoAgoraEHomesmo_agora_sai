@@ -18,6 +18,8 @@
         android:id="@+id/recyclerViewItems"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <LinearLayout
@@ -25,26 +27,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
         android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone"
         tools:visibility="visible">
 
         <ImageView
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/ic_empty_item"
+            android:alpha="0.6"
             android:contentDescription="Nenhum item na lista"
-            app:tint="?attr/colorOnSurface"
-            android:alpha="0.6" />
+            android:src="@drawable/ic_empty_item"
+            app:tint="?attr/colorOnSurface" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:alpha="0.8"
             android:text="Sua lista está vazia"
-            android:textSize="18sp"
-            android:alpha="0.8" />
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="wrap_content"

@@ -102,7 +102,15 @@ class ListsActivity : AppCompatActivity() {
                 showListOptionsDialog(clickedList)
             }
         )
-        binding.recyclerViewLists.layoutManager = GridLayoutManager(this, 2)
+
+        val orientation = resources.configuration.orientation
+        val spanCount = if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            4
+        } else {
+            2
+        }
+
+        binding.recyclerViewLists.layoutManager = GridLayoutManager(this, spanCount)
         binding.recyclerViewLists.adapter = adapter
     }
 
