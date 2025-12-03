@@ -2,12 +2,11 @@ package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.vi
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityLoginBinding
-import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.AuthViewModel
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +18,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
 
-    private val viewModel: AuthViewModel by viewModel()
+    private val viewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +26,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         checkLoggedUser()
-
         setupObservers()
         setupListeners()
     }
@@ -63,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.authState.observe(this) { resource ->
+        viewModel.loginState.observe(this) { resource ->
             when (resource) {
                 is Resource.Loading -> {
                     binding.buttonLogin.isEnabled = false

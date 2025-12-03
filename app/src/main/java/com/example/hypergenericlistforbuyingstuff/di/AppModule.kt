@@ -6,6 +6,8 @@ import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.Auth
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.FirebaseAuthDataSource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.UserDataSource
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.AuthViewModel
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.RegisterViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepository
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepositoryImpl
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.FirebaseShoppingListDataSource
@@ -30,7 +32,8 @@ val appModule = module {
     single<AuthDataSource> { FirebaseAuthDataSource(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
-    viewModel { AuthViewModel(get()) }
+    viewModel { LoginViewModel(get()) }
+    viewModel { RegisterViewModel(get()) }
 
     single<ShoppingListDataSource> { FirebaseShoppingListDataSource(get(), get()) }
     single<ShoppingListRepository> { ShoppingListRepositoryImpl(get()) }

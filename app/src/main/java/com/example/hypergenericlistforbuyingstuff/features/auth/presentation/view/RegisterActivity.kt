@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityRegisterBinding
-import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.AuthViewModel
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.RegisterViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -14,7 +14,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
 
-    private val viewModel: AuthViewModel by viewModel()
+    private val viewModel: RegisterViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +44,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.authState.observe(this) { resource ->
+        viewModel.registerState.observe(this) { resource ->
             when (resource) {
                 is Resource.Loading -> {
                     binding.buttonCreate.isEnabled = false
