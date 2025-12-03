@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepository
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ListItemRepository
 import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import kotlinx.coroutines.launch
 
 class ListItemsViewModel(
-    private val repository: ShoppingListRepository
+    private val repository: ListItemRepository
 ) : ViewModel() {
 
     private val _itemsState = MutableLiveData<Resource<List<GroupedListItem>>>()
@@ -66,6 +66,23 @@ class ListItemsViewModel(
         }
     }
 
+    fun searchItems(listId: String, query: String) {
+        if (query.isBlank()) {
+            loadItems(listId)
+            return
+        }
+        _itemsState.value = Resource.Loading
+        viewModelScope.launch {
+            val result = repository.searchItems(listId, query)
+            if (result is Resource.Success) {
+                val grouped = groupItems(result.data)
+                _itemsState.value = Resource.Success(grouped)
+            } else if (result is Resource.Error) {
+                _itemsState.value = Resource.Error(result.message)
+            }
+        }
+    }
+
     private fun handleOperationResult(result: Resource<Any>, listId: String) {
         if (result is Resource.Success) {
             _operationState.value = Resource.Success(Unit)
@@ -111,22 +128,6 @@ class ListItemsViewModel(
             "Limpeza" -> "🧼"
             "Higiene" -> "🪥"
             else -> "📦"
-        }
-    }
-    fun searchItems(listId: String, query: String) {
-        if (query.isBlank()) {
-            loadItems(listId)
-            return
-        }
-        _itemsState.value = Resource.Loading
-        viewModelScope.launch {
-            val result = repository.searchItems(listId, query)
-            if (result is Resource.Success) {
-                val grouped = groupItems(result.data)
-                _itemsState.value = Resource.Success(grouped)
-            } else if (result is Resource.Error) {
-                _itemsState.value = Resource.Error(result.message)
-            }
         }
     }
 }

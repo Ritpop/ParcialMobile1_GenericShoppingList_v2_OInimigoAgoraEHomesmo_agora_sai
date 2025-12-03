@@ -5,13 +5,15 @@ import com.example.hypergenericlistforbuyingstuff.features.auth.data.repository.
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.AuthDataSource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.FirebaseAuthDataSource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.UserDataSource
-import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.AuthViewModel
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.RegisterViewModel
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ListItemRepository
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepository
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepositoryImpl
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.FirebaseShoppingListDataSource
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ListItemDataSource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ShoppingListDataSource
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.StorageDataSource
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListDetailsViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
@@ -24,26 +26,34 @@ import org.koin.dsl.module
 
 val appModule = module {
 
+    // Instacias do firebase
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
     single { FirebaseStorage.getInstance() }
-    single { UserDataSource(get()) }
 
+    // Auth
+    single { UserDataSource(get()) }
     single<AuthDataSource> { FirebaseAuthDataSource(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
+    // ShoppingListDataSource
+    single { StorageDataSource(get()) }
+    single { ListItemDataSource(get()) }
+    single<ShoppingListDataSource> { FirebaseShoppingListDataSource(get()) }
+
+    // repositories
+    single<ShoppingListRepository> { ShoppingListRepositoryImpl(get(), get()) }
+    single { ListItemRepository(get()) }
+
+    // auth
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get()) }
 
-    single<ShoppingListDataSource> { FirebaseShoppingListDataSource(get(), get()) }
-    single<ShoppingListRepository> { ShoppingListRepositoryImpl(get()) }
-
+    // list
     viewModel { ListsViewModel(get(), get()) }
     viewModel { ListDetailsViewModel(get(), get()) }
 
+
     viewModel { ListItemsViewModel(get()) }
-
     viewModel { CategoryViewModel(get()) }
-
-
 }
