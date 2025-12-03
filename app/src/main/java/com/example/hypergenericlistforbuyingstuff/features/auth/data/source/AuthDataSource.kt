@@ -1,11 +1,10 @@
 package com.example.hypergenericlistforbuyingstuff.features.auth.data.source
 
-import com.example.hypergenericlistforbuyingstuff.models.User
 
 interface AuthDataSource {
-    suspend fun login(email: String, password: String): User
-    suspend fun register(name: String, email: String, password: String): User
+    suspend fun login(email: String, password: String): String
+    suspend fun register(email: String, password: String): String 
     suspend fun logout()
-    suspend fun getCurrentUser(): User?
+    suspend fun getCurrentUserUid(): String?
     suspend fun recoverPassword(email: String)
 }
