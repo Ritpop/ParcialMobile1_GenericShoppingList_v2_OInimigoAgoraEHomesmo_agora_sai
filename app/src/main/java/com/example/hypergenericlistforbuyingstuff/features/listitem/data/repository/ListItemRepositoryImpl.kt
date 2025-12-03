@@ -1,12 +1,12 @@
-package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository
+package com.example.hypergenericlistforbuyingstuff.features.listitem.data.repository
 
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ListItemDataSource
+import com.example.hypergenericlistforbuyingstuff.features.listitem.data.source.ListItemDataSource
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 
-class ListItemRepository(private val dataSource: ListItemDataSource) {
+class ListItemRepositoryImpl(private val dataSource: ListItemDataSource) : ListItemRepository {
 
-    suspend fun getItems(listId: String): Resource<List<ListItem>> {
+    override suspend fun getItems(listId: String): Resource<List<ListItem>> {
         return try {
             Resource.Success(dataSource.getItems(listId))
         } catch (e: Exception) {
@@ -14,46 +14,46 @@ class ListItemRepository(private val dataSource: ListItemDataSource) {
         }
     }
 
-    suspend fun addItem(listId: String, item: ListItem): Resource<String> {
+    override suspend fun addItem(listId: String, item: ListItem): Resource<String> {
         return try {
             Resource.Success(dataSource.addItem(listId, item))
         } catch (e: Exception) {
-            Resource.Error("Erro ao adicionar item")
+            Resource.Error("Não foi possivel adicionar item.")
         }
     }
 
-    suspend fun updateItem(listId: String, item: ListItem): Resource<Unit> {
+    override suspend fun updateItem(listId: String, item: ListItem): Resource<Unit> {
         return try {
             dataSource.updateItem(listId, item)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error("Erro ao editar")
+            Resource.Error("Erro ao editar.")
         }
     }
 
-    suspend fun deleteItem(listId: String, itemId: String): Resource<Unit> {
+    override suspend fun deleteItem(listId: String, itemId: String): Resource<Unit> {
         return try {
             dataSource.deleteItem(listId, itemId)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error("Erro ao deletar item")
+            Resource.Error("erro ao deletar")
         }
     }
 
-    suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean): Resource<Unit> {
+    override suspend fun toggleItemChecked(listId: String, itemId: String, isChecked: Boolean): Resource<Unit> {
         return try {
             dataSource.toggleItemChecked(listId, itemId, isChecked)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            Resource.Error("Erro ao marcar item")
+            Resource.Error("erro ao marcar iten")
         }
     }
 
-    suspend fun searchItems(listId: String, query: String): Resource<List<ListItem>> {
+    override suspend fun searchItems(listId: String, query: String): Resource<List<ListItem>> {
         return try {
             Resource.Success(dataSource.searchItems(listId, query))
         } catch (e: Exception) {
-            Resource.Error("Erro de busca")
+            Resource.Error("Erro busca")
         }
     }
 }

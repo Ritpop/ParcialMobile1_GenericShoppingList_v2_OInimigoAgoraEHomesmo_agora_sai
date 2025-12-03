@@ -13,7 +13,4 @@ interface ShoppingListRepository {
     suspend fun getListById(listId: String): ShoppingList?
     suspend fun searchLists(userId: String, query: String): Resource<List<ShoppingList>>
 
-    suspend fun getCategories(): Resource<List<Category>>
-    suspend fun addCategory(name: String, emoji: String): Resource<Unit>
-    suspend fun deleteCategory(categoryId: String): Resource<Unit>
 }

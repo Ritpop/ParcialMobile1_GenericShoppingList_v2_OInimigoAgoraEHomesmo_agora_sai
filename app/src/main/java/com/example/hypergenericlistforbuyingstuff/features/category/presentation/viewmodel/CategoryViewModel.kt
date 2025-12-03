@@ -1,15 +1,15 @@
-package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel
+package com.example.hypergenericlistforbuyingstuff.features.category.presentation.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepository
+import com.example.hypergenericlistforbuyingstuff.features.category.data.repository.CategoryRepository
 import com.example.hypergenericlistforbuyingstuff.models.Category
 import kotlinx.coroutines.launch
 
-class CategoryViewModel(private val repository: ShoppingListRepository) : ViewModel() {
+class CategoryViewModel(private val repository: CategoryRepository) : ViewModel() {
 
     private val _categories = MutableLiveData<List<Category>>()
     val categories: LiveData<List<Category>> = _categories

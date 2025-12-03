@@ -1,17 +1,19 @@
-package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel
+package com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ListItemRepository
+import com.example.hypergenericlistforbuyingstuff.features.category.data.repository.CategoryRepository
+import com.example.hypergenericlistforbuyingstuff.features.listitem.data.repository.ListItemRepository
 import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import kotlinx.coroutines.launch
 
 class ListItemsViewModel(
-    private val repository: ListItemRepository
+    private val repository: ListItemRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     private val _itemsState = MutableLiveData<Resource<List<GroupedListItem>>>()
@@ -20,9 +22,15 @@ class ListItemsViewModel(
     private val _operationState = MutableLiveData<Resource<Unit>>()
     val operationState: LiveData<Resource<Unit>> = _operationState
 
+    private var categoryMap = mapOf<String, String>()
+
     fun loadItems(listId: String) {
         _itemsState.value = Resource.Loading
         viewModelScope.launch {
+            val catResult = categoryRepository.getCategories()
+            if (catResult is Resource.Success) {
+                categoryMap = catResult.data.associate { it.name to it.emoji }
+            }
             val result = repository.getItems(listId)
             if (result is Resource.Success) {
                 val items = result.data
@@ -34,9 +42,16 @@ class ListItemsViewModel(
         }
     }
 
+
     fun addItem(listId: String, name: String, quantity: Double, unit: String, category: String) {
         viewModelScope.launch {
-            val item = ListItem(name = name, quantity = quantity, unit = unit, category = category, listId = listId)
+            val item = ListItem(
+                name = name,
+                quantity = quantity,
+                unit = unit,
+                category = category,
+                listId = listId
+            )
             val result = repository.addItem(listId, item)
             handleOperationResult(result, listId)
         }
@@ -94,14 +109,12 @@ class ListItemsViewModel(
 
     private fun groupItems(items: List<ListItem>): List<GroupedListItem> {
         val groupedList = mutableListOf<GroupedListItem>()
-
         val (checkedItems, uncheckedItems) = items.partition { it.isChecked }
-
         val groupedUnchecked = uncheckedItems.groupBy { it.category }.toSortedMap()
 
-        groupedUnchecked.forEach { (category, categoryItems) ->
-            val emoji = getEmojiForCategory(category)
-            groupedList.add(GroupedListItem.Header(category, emoji))
+        groupedUnchecked.forEach { (categoryName, categoryItems) ->
+            val emoji = categoryMap[categoryName] ?: "📦"
+            groupedList.add(GroupedListItem.Header(categoryName, emoji))
             categoryItems.sortedBy { it.name }.forEach { item ->
                 groupedList.add(GroupedListItem.Item(item))
             }
@@ -113,21 +126,7 @@ class ListItemsViewModel(
                 groupedList.add(GroupedListItem.Item(item))
             }
         }
-
         return groupedList
     }
 
-    private fun getEmojiForCategory(category: String): String {
-        return when (category) {
-            "Fruta" -> "🍎"
-            "Verdura" -> "🥦"
-            "Carne" -> "🥩"
-            "Laticínios" -> "🥛"
-            "Padaria" -> "🍞"
-            "Bebidas" -> "🥤"
-            "Limpeza" -> "🧼"
-            "Higiene" -> "🪥"
-            else -> "📦"
-        }
-    }
 }

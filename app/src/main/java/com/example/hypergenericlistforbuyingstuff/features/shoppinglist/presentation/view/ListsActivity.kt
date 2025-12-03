@@ -10,13 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
-import com.example.hypergenericlistforbuyingstuff.adapters.ShoppingListAdapter
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.adapter.ShoppingListAdapter
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListsBinding
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.view.LoginActivity
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.view.CategoryManagerActivity
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListItemsActivity
+import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.view.ListItemsActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel

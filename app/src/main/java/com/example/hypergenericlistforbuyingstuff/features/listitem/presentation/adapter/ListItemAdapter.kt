@@ -1,4 +1,4 @@
-package com.example.hypergenericlistforbuyingstuff.adapters
+package com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.adapter
 
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -15,9 +15,16 @@ class ListItemAdapter(
     private val onItemLongClick: (ListItem) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var categoryEmojis: Map<String, String> = emptyMap()
+
     companion object {
         private const val TYPE_HEADER = 0
         private const val TYPE_ITEM = 1
+    }
+
+    fun setCategoryMap(map: Map<String, String>) {
+        categoryEmojis = map
+        notifyDataSetChanged()
     }
 
     class CategoryHeaderViewHolder(val binding: ItemCategoryHeaderBinding) :
@@ -30,13 +37,20 @@ class ListItemAdapter(
 
     class ListItemViewHolder(val binding: ItemListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ListItem, onCheckboxClick: (ListItem) -> Unit) {
+        fun bind(
+            item: ListItem,
+            onCheckboxClick: (ListItem) -> Unit,
+            emojiMap: Map<String, String>
+        ) {
             binding.textViewItemName.text = item.name
             val details = "${item.quantity} ${item.unit}"
             binding.textViewItemDetails.text = details
+
             binding.checkBoxItem.setOnCheckedChangeListener(null)
             binding.checkBoxItem.isChecked = item.isChecked
-            binding.textViewCategoryEmoji.text = getEmojiForCategory(item.category)
+
+            val emoji = emojiMap[item.category] ?: "📦"
+            binding.textViewCategoryEmoji.text = emoji
 
             if (item.isChecked) {
                 binding.textViewItemName.paintFlags =
@@ -54,20 +68,6 @@ class ListItemAdapter(
 
             binding.checkBoxItem.setOnClickListener {
                 onCheckboxClick(item)
-            }
-        }
-
-        private fun getEmojiForCategory(category: String): String {
-            return when (category) {
-                "Fruta" -> "🍎"
-                "Verdura" -> "🥦"
-                "Carne" -> "🥩"
-                "Laticínios" -> "🥛"
-                "Padaria" -> "🍞"
-                "Bebidas" -> "🥤"
-                "Limpeza" -> "🧼"
-                "Higiene" -> "🪥"
-                else -> "📦"
             }
         }
     }
@@ -100,7 +100,11 @@ class ListItemAdapter(
                 (holder as CategoryHeaderViewHolder).bind(currentItem)
             }
             is GroupedListItem.Item -> {
-                (holder as ListItemViewHolder).bind(currentItem.listItem, onCheckboxClick)
+                (holder as ListItemViewHolder).bind(
+                    currentItem.listItem,
+                    onCheckboxClick,
+                    categoryEmojis
+                )
                 holder.itemView.setOnLongClickListener {
                     onItemLongClick(currentItem.listItem)
                     true

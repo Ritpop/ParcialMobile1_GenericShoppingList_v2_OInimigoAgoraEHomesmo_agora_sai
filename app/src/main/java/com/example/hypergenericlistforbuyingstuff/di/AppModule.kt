@@ -1,22 +1,17 @@
 package com.example.hypergenericlistforbuyingstuff.di
 
-import com.example.hypergenericlistforbuyingstuff.features.auth.data.repository.AuthRepository
-import com.example.hypergenericlistforbuyingstuff.features.auth.data.repository.AuthRepositoryImpl
-import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.AuthDataSource
-import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.FirebaseAuthDataSource
-import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.UserDataSource
-import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
-import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.RegisterViewModel
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ListItemRepository
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepository
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.ShoppingListRepositoryImpl
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.FirebaseShoppingListDataSource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ListItemDataSource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.ShoppingListDataSource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.StorageDataSource
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
+import com.example.hypergenericlistforbuyingstuff.features.auth.data.repository.*
+import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.*
+import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.*
+import com.example.hypergenericlistforbuyingstuff.features.category.data.repository.*
+import com.example.hypergenericlistforbuyingstuff.features.category.data.source.*
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.viewmodel.CategoryViewModel
+import com.example.hypergenericlistforbuyingstuff.features.listitem.data.repository.*
+import com.example.hypergenericlistforbuyingstuff.features.listitem.data.source.*
+import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.viewmodel.ListItemsViewModel
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.repository.*
+import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.data.source.*
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListDetailsViewModel
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,23 +32,25 @@ val appModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
     // ShoppingListDataSource
-    single { StorageDataSource(get()) }
-    single { ListItemDataSource(get()) }
+    single<StorageDataSource> { FirebaseStorageDataSource(get()) }
     single<ShoppingListDataSource> { FirebaseShoppingListDataSource(get()) }
-
-    // repositories
     single<ShoppingListRepository> { ShoppingListRepositoryImpl(get(), get()) }
-    single { ListItemRepository(get()) }
+    // list items
+    single<ListItemDataSource> { FirebaseListItemDataSource(get()) }
+    single<ListItemRepository> { ListItemRepositoryImpl(get()) }
+
+
+    // cateogies
+    single<CategoryDataSource> { FirebaseCategoryDataSource(get()) }
+    single<CategoryRepository> { CategoryRepositoryImpl(get()) }
 
     // auth
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get()) }
 
-    // list
     viewModel { ListsViewModel(get(), get()) }
     viewModel { ListDetailsViewModel(get(), get()) }
+    viewModel { ListItemsViewModel(get(), get()) }
 
-
-    viewModel { ListItemsViewModel(get()) }
     viewModel { CategoryViewModel(get()) }
 }

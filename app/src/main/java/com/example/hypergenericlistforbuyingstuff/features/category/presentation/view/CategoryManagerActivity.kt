@@ -1,4 +1,4 @@
-package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view
+package com.example.hypergenericlistforbuyingstuff.features.category.presentation.view
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -7,11 +7,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
-import com.example.hypergenericlistforbuyingstuff.adapters.CategoryAdapter
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter.CategoryAdapter
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityCategoryManagerBinding
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.viewmodel.CategoryViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CategoryManagerActivity : AppCompatActivity() {

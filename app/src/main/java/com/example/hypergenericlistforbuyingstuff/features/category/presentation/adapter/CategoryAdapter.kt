@@ -1,4 +1,4 @@
-package com.example.hypergenericlistforbuyingstuff.adapters
+package com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

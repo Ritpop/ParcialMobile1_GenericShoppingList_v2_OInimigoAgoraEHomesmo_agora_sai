@@ -1,4 +1,4 @@
-package com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view
+package com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.view
 
 import android.os.Bundle
 import android.view.Menu
@@ -10,13 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
-import com.example.hypergenericlistforbuyingstuff.adapters.CategorySpinnerAdapter
-import com.example.hypergenericlistforbuyingstuff.adapters.ListItemAdapter
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter.CategorySpinnerAdapter
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityAddItemBinding
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListItemsBinding
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.CategoryViewModel
-import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListItemsViewModel
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.viewmodel.CategoryViewModel
+import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.adapter.ListItemAdapter
+import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.viewmodel.ListItemsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -92,7 +92,10 @@ class ListItemsActivity : AppCompatActivity() {
 
         categoryViewModel.categories.observe(this) { categories ->
             availableCategories = categories
+            val map = categories.associate { it.name to it.emoji }
+            adapter.setCategoryMap(map)
         }
+
     }
 
     private fun toggleEmptyState(isEmpty: Boolean) {
@@ -148,7 +151,9 @@ class ListItemsActivity : AppCompatActivity() {
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogBinding.spinnerUnit.adapter = unitAdapter
 
-        val categoriesToShow = if (availableCategories.isNotEmpty()) availableCategories else listOf(Category(name="Geral", emoji="📦"))
+        val categoriesToShow = if (availableCategories.isNotEmpty()) availableCategories else listOf(
+            Category(name = "Geral", emoji = "📦")
+        )
         val categoryAdapter = CategorySpinnerAdapter(this, categoriesToShow)
         dialogBinding.spinnerCategory.adapter = categoryAdapter
 
