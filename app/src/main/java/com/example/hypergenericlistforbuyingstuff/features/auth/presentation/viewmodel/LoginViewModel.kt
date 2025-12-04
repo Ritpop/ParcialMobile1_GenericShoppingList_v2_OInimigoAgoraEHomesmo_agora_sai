@@ -1,33 +1,34 @@
 package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.repository.AuthRepository
 import com.example.hypergenericlistforbuyingstuff.models.User
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
 
-    private val _loginState = MutableLiveData<Resource<User>>()
-    val loginState: LiveData<Resource<User>> = _loginState
+    private val _loginState = MutableStateFlow<Resource<User>?>(null)
+    val loginState: StateFlow<Resource<User>?> = _loginState.asStateFlow()
 
-    private val _recoverState = MutableLiveData<Resource<Unit>>()
-    val recoverState: LiveData<Resource<Unit>> = _recoverState
+    private val _recoverState = MutableStateFlow<Resource<Unit>?>(null)
+    val recoverState: StateFlow<Resource<Unit>?> = _recoverState.asStateFlow()
 
     fun login(email: String, password: String) {
-        _loginState.value = Resource.Loading
         viewModelScope.launch {
+            _loginState.value = Resource.Loading
             val result = repository.login(email, password)
             _loginState.value = result
         }
     }
 
     fun recoverPassword(email: String) {
-        _recoverState.value = Resource.Loading
         viewModelScope.launch {
+            _recoverState.value = Resource.Loading
             val result = repository.recoverPassword(email)
             _recoverState.value = result
         }

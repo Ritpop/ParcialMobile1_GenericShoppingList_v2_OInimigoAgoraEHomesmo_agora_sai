@@ -5,12 +5,14 @@ import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
-import com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter.CategoryAdapter
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityCategoryManagerBinding
+import com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter.CategoryAdapter
 import com.example.hypergenericlistforbuyingstuff.features.category.presentation.viewmodel.CategoryViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CategoryManagerActivity : AppCompatActivity() {
@@ -29,8 +31,10 @@ class CategoryManagerActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        viewModel.categories.observe(this) {
-            adapter.updateCategories(it)
+        lifecycleScope.launch {
+            viewModel.categories.collect {
+                adapter.updateCategories(it)
+            }
         }
         viewModel.loadCategories()
 

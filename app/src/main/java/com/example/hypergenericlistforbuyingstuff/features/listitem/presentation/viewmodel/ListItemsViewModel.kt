@@ -1,7 +1,5 @@
 package com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
@@ -9,6 +7,9 @@ import com.example.hypergenericlistforbuyingstuff.features.category.data.reposit
 import com.example.hypergenericlistforbuyingstuff.features.listitem.data.repository.ListItemRepository
 import com.example.hypergenericlistforbuyingstuff.models.GroupedListItem
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ListItemsViewModel(
@@ -16,21 +17,23 @@ class ListItemsViewModel(
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
-    private val _itemsState = MutableLiveData<Resource<List<GroupedListItem>>>()
-    val itemsState: LiveData<Resource<List<GroupedListItem>>> = _itemsState
+    private val _itemsState = MutableStateFlow<Resource<List<GroupedListItem>>?>(null)
+    val itemsState: StateFlow<Resource<List<GroupedListItem>>?> = _itemsState.asStateFlow()
 
-    private val _operationState = MutableLiveData<Resource<Unit>>()
-    val operationState: LiveData<Resource<Unit>> = _operationState
+    private val _operationState = MutableStateFlow<Resource<Unit>?>(null)
+    val operationState: StateFlow<Resource<Unit>?> = _operationState.asStateFlow()
 
     private var categoryMap = mapOf<String, String>()
 
     fun loadItems(listId: String) {
-        _itemsState.value = Resource.Loading
         viewModelScope.launch {
+            _itemsState.value = Resource.Loading
+
             val catResult = categoryRepository.getCategories()
             if (catResult is Resource.Success) {
                 categoryMap = catResult.data.associate { it.name to it.emoji }
             }
+
             val result = repository.getItems(listId)
             if (result is Resource.Success) {
                 val items = result.data
@@ -41,7 +44,6 @@ class ListItemsViewModel(
             }
         }
     }
-
 
     fun addItem(listId: String, name: String, quantity: Double, unit: String, category: String) {
         viewModelScope.launch {
@@ -86,8 +88,8 @@ class ListItemsViewModel(
             loadItems(listId)
             return
         }
-        _itemsState.value = Resource.Loading
         viewModelScope.launch {
+            _itemsState.value = Resource.Loading
             val result = repository.searchItems(listId, query)
             if (result is Resource.Success) {
                 val grouped = groupItems(result.data)
@@ -128,5 +130,4 @@ class ListItemsViewModel(
         }
         return groupedList
     }
-
 }

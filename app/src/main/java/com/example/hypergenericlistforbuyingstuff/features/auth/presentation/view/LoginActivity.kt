@@ -2,8 +2,10 @@ package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.vi
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityLoginBinding
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
@@ -17,7 +19,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-
     private val viewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,34 +62,40 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.loginState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    binding.buttonLogin.isEnabled = false
-                    binding.buttonLogin.text = "Carregando..."
-                }
-                is Resource.Success -> {
-                    binding.buttonLogin.isEnabled = true
-                    binding.buttonLogin.text = "Acessar"
-                    navigateToHome()
-                }
-                is Resource.Error -> {
-                    binding.buttonLogin.isEnabled = true
-                    binding.buttonLogin.text = "Acessar"
-                    Toast.makeText(this, "Erro: ${resource.message}", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            viewModel.loginState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        binding.buttonLogin.isEnabled = false
+                        binding.buttonLogin.text = "Carregando..."
+                    }
+                    is Resource.Success -> {
+                        binding.buttonLogin.isEnabled = true
+                        binding.buttonLogin.text = "Acessar"
+                        navigateToHome()
+                    }
+                    is Resource.Error -> {
+                        binding.buttonLogin.isEnabled = true
+                        binding.buttonLogin.text = "Acessar"
+                        Toast.makeText(this@LoginActivity, "Erro: ${resource.message}", Toast.LENGTH_SHORT).show()
+                    }
+                    null -> {}
                 }
             }
         }
 
-        viewModel.recoverState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Success -> {
-                    Toast.makeText(this, "Email de recuperação enviado!", Toast.LENGTH_LONG).show()
+        lifecycleScope.launch {
+            viewModel.recoverState.collect { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        Toast.makeText(this@LoginActivity, "Email de recuperação enviado!", Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Error -> {
+                        Toast.makeText(this@LoginActivity, resource.message, Toast.LENGTH_LONG).show()
+                    }
+                    is Resource.Loading -> { }
+                    null -> {}
                 }
-                is Resource.Error -> {
-                    Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
-                }
-                else -> {  }
             }
         }
     }

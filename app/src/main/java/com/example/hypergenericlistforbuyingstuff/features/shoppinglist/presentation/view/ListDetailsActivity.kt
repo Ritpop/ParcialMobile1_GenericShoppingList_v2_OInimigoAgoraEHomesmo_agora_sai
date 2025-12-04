@@ -6,10 +6,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListDetailsBinding
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListDetailsViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ListDetailsActivity : AppCompatActivity() {
@@ -70,37 +72,42 @@ class ListDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.listData.observe(this) { list ->
-            list?.let {
-                binding.editTextListName.setText(it.name)
-                if (!it.imagePath.isNullOrBlank()) {
-                    Glide.with(this)
-                        .load(it.imagePath)
-                        .centerCrop()
-                        .into(binding.imageViewPreview)
+        lifecycleScope.launch {
+            viewModel.listData.collect { list ->
+                list?.let {
+                    binding.editTextListName.setText(it.name)
+                    if (!it.imagePath.isNullOrBlank()) {
+                        Glide.with(this@ListDetailsActivity)
+                            .load(it.imagePath)
+                            .centerCrop()
+                            .into(binding.imageViewPreview)
+                    }
                 }
             }
         }
 
-        viewModel.saveState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    binding.buttonSave.isEnabled = false
-                    binding.buttonSave.text = "Salvando..."
-                    binding.editTextListName.isEnabled = false
-                    binding.buttonChooseImage.isEnabled = false
-                }
-                is Resource.Success -> {
-                    binding.buttonSave.isEnabled = true
-                    Toast.makeText(this, "Lista salva com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-                is Resource.Error -> {
-                    binding.buttonSave.isEnabled = true
-                    binding.buttonSave.text = if (listId != null) "Salvar Alterações" else "Criar Lista"
-                    binding.editTextListName.isEnabled = true
-                    binding.buttonChooseImage.isEnabled = true
-                    Toast.makeText(this, "Erro: ${resource.message}", Toast.LENGTH_LONG).show()
+        lifecycleScope.launch {
+            viewModel.saveState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        binding.buttonSave.isEnabled = false
+                        binding.buttonSave.text = "Salvando..."
+                        binding.editTextListName.isEnabled = false
+                        binding.buttonChooseImage.isEnabled = false
+                    }
+                    is Resource.Success -> {
+                        binding.buttonSave.isEnabled = true
+                        Toast.makeText(this@ListDetailsActivity, "Lista salva com sucesso!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    is Resource.Error -> {
+                        binding.buttonSave.isEnabled = true
+                        binding.buttonSave.text = if (listId != null) "Salvar Alterações" else "Criar Lista"
+                        binding.editTextListName.isEnabled = true
+                        binding.buttonChooseImage.isEnabled = true
+                        Toast.makeText(this@ListDetailsActivity, "Erro: ${resource.message}", Toast.LENGTH_LONG).show()
+                    }
+                    null -> {}
                 }
             }
         }

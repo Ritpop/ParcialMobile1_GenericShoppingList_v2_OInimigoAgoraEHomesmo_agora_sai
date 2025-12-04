@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
 import com.example.hypergenericlistforbuyingstuff.features.category.presentation.adapter.CategorySpinnerAdapter
@@ -21,6 +22,7 @@ import com.example.hypergenericlistforbuyingstuff.models.Category
 import com.example.hypergenericlistforbuyingstuff.models.ListItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ListItemsActivity : AppCompatActivity() {
@@ -69,35 +71,39 @@ class ListItemsActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        itemsViewModel.itemsState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                }
-                is Resource.Success -> {
-                    val items = resource.data
-                    adapter.updateItems(items)
-                    toggleEmptyState(items.isEmpty())
-                }
-                is Resource.Error -> {
-                    Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
+        lifecycleScope.launch {
+            itemsViewModel.itemsState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> { }
+                    is Resource.Success -> {
+                        val items = resource.data
+                        adapter.updateItems(items)
+                        toggleEmptyState(items.isEmpty())
+                    }
+                    is Resource.Error -> {
+                        Toast.makeText(this@ListItemsActivity, resource.message, Toast.LENGTH_LONG).show()
+                    }
+                    null -> {}
                 }
             }
         }
 
-        itemsViewModel.operationState.observe(this) { resource ->
-            if (resource is Resource.Error) {
-                Toast.makeText(this, resource.message, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            itemsViewModel.operationState.collect { resource ->
+                if (resource is Resource.Error) {
+                    Toast.makeText(this@ListItemsActivity, resource.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
-        categoryViewModel.categories.observe(this) { categories ->
-            availableCategories = categories
-            val map = categories.associate { it.name to it.emoji }
-            adapter.setCategoryMap(map)
+        lifecycleScope.launch {
+            categoryViewModel.categories.collect { categories ->
+                availableCategories = categories
+                val map = categories.associate { it.name to it.emoji }
+                adapter.setCategoryMap(map)
+            }
         }
-
     }
-
     private fun toggleEmptyState(isEmpty: Boolean) {
         if (isEmpty) {
             binding.recyclerViewItems.visibility = View.GONE

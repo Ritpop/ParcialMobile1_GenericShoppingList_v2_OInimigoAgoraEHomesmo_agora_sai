@@ -8,8 +8,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.hypergenericlistforbuyingstuff.R
+import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.view.ListItemsActivity
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.adapter.ShoppingListAdapter
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityListsBinding
@@ -17,16 +19,15 @@ import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.vie
 import com.example.hypergenericlistforbuyingstuff.features.category.presentation.view.CategoryManagerActivity
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.viewmodel.ListsViewModel
 import com.example.hypergenericlistforbuyingstuff.models.ShoppingList
-import com.example.hypergenericlistforbuyingstuff.features.listitem.presentation.view.ListItemsActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ListsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListsBinding
     private lateinit var adapter: ShoppingListAdapter
-
     private val viewModel: ListsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,31 +52,37 @@ class ListsActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.listsState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    binding.emptyStateLayout.visibility = View.GONE
-                }
-                is Resource.Success -> {
-                    val lists = resource.data
-                    adapter.updateLists(lists)
-                    toggleEmptyState(lists.isEmpty())
-                }
-                is Resource.Error -> {
-                    Toast.makeText(this, resource.message, Toast.LENGTH_LONG).show()
+        lifecycleScope.launch {
+            viewModel.listsState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        binding.emptyStateLayout.visibility = View.GONE
+                    }
+                    is Resource.Success -> {
+                        val lists = resource.data
+                        adapter.updateLists(lists)
+                        toggleEmptyState(lists.isEmpty())
+                    }
+                    is Resource.Error -> {
+                        Toast.makeText(this@ListsActivity, resource.message, Toast.LENGTH_LONG).show()
+                    }
+                    null -> {}
                 }
             }
         }
 
-        viewModel.deleteState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Success -> {
-                    Snackbar.make(binding.root, "Lista excluída com sucesso", Snackbar.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            viewModel.deleteState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> { }
+                    is Resource.Success -> {
+                        Snackbar.make(binding.root, "Lista excluída com sucesso", Snackbar.LENGTH_SHORT).show()
+                    }
+                    is Resource.Error -> {
+                        Snackbar.make(binding.root, "Erro ao excluir: ${resource.message}", Snackbar.LENGTH_LONG).show()
+                    }
+                    null -> {}
                 }
-                is Resource.Error -> {
-                    Snackbar.make(binding.root, "Erro ao excluir: ${resource.message}", Snackbar.LENGTH_LONG).show()
-                }
-                else -> {}
             }
         }
     }
@@ -105,11 +112,7 @@ class ListsActivity : AppCompatActivity() {
         )
 
         val orientation = resources.configuration.orientation
-        val spanCount = if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-            4
-        } else {
-            2
-        }
+        val spanCount = if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 4 else 2
 
         binding.recyclerViewLists.layoutManager = GridLayoutManager(this, spanCount)
         binding.recyclerViewLists.adapter = adapter
@@ -122,12 +125,12 @@ class ListsActivity : AppCompatActivity() {
             .setTitle(list.name)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> { // Editar
+                    0 -> {
                         val intent = Intent(this, ListDetailsActivity::class.java)
                         intent.putExtra(ListDetailsActivity.EXTRA_LIST_ID, list.id)
                         startActivity(intent)
                     }
-                    1 -> { // Excluir
+                    1 -> {
                         showDeleteConfirmation(list)
                     }
                 }

@@ -4,16 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityRegisterBinding
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.RegisterViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-
     private val viewModel: RegisterViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,25 +45,28 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.registerState.observe(this) { resource ->
-            when (resource) {
-                is Resource.Loading -> {
-                    binding.buttonCreate.isEnabled = false
-                    binding.buttonCreate.text = "Criando..."
-                }
-                is Resource.Success -> {
-                    binding.buttonCreate.isEnabled = true
-                    Toast.makeText(this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            viewModel.registerState.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        binding.buttonCreate.isEnabled = false
+                        binding.buttonCreate.text = "Criando..."
+                    }
+                    is Resource.Success -> {
+                        binding.buttonCreate.isEnabled = true
+                        Toast.makeText(this@RegisterActivity, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
 
-                    val intent = Intent(this, ListsActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
-                }
-                is Resource.Error -> {
-                    binding.buttonCreate.isEnabled = true
-                    binding.buttonCreate.text = "Criar"
-                    Toast.makeText(this, "Erro: ${resource.message}", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this@RegisterActivity, ListsActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    }
+                    is Resource.Error -> {
+                        binding.buttonCreate.isEnabled = true
+                        binding.buttonCreate.text = "Criar"
+                        Toast.makeText(this@RegisterActivity, "Erro: ${resource.message}", Toast.LENGTH_LONG).show()
+                    }
+                    null -> {}
                 }
             }
         }
