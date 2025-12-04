@@ -9,4 +9,5 @@ interface AuthRepository {
     suspend fun logout()
     suspend fun getCurrentUser(): User?
     suspend fun recoverPassword(email: String): Resource<Unit>
+    suspend fun loginWithGoogle(idToken: String): Resource<User>
 }

@@ -7,6 +7,7 @@
     <string name="email">Email</string>
     <string name="lista_de_compras">Lista de Compras</string>
     <string name="nome_completo">Nome Completo</string>
+    <string name="entrar_com_google">Entrar com Google</string>
 
     <string-array name="units_array">
         <item>un</item>

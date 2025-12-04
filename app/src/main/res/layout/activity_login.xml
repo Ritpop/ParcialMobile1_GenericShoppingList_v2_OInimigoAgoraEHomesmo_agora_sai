@@ -71,12 +71,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/acessar" />
-
+        <Button
+            android:id="@+id/buttonGoogleLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/green_primary"
+            android:text="@string/entrar_com_google" />
         <Button
             android:id="@+id/buttonRegister"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/criar_conta" />
+
     </LinearLayout>
 </ScrollView>

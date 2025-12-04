@@ -26,6 +26,14 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _loginState.value = Resource.Loading
+            val result = repository.loginWithGoogle(idToken)
+            _loginState.value = result
+        }
+    }
+
     fun recoverPassword(email: String) {
         viewModelScope.launch {
             _recoverState.value = Resource.Loading

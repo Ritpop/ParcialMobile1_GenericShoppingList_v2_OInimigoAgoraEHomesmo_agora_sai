@@ -2,14 +2,24 @@ package com.example.hypergenericlistforbuyingstuff.features.auth.presentation.vi
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.example.hypergenericlistforbuyingstuff.R
 import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.databinding.ActivityLoginBinding
 import com.example.hypergenericlistforbuyingstuff.features.auth.presentation.viewmodel.LoginViewModel
 import com.example.hypergenericlistforbuyingstuff.features.shoppinglist.presentation.view.ListsActivity
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,11 +30,14 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModel()
+    private lateinit var credentialManager: CredentialManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        credentialManager = CredentialManager.create(this)
 
         checkLoggedUser()
         setupObservers()
@@ -52,6 +65,10 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        binding.buttonGoogleLogin.setOnClickListener {
+            startGoogleSignIn()
+        }
+
         binding.buttonRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
@@ -61,21 +78,76 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun startGoogleSignIn() {
+        lifecycleScope.launch {
+            try {
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(getString(R.string.default_web_client_id))
+                    .setAutoSelectEnabled(false)
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = this@LoginActivity
+                )
+
+                handleSignIn(result)
+
+            } catch (e: GetCredentialException) {
+                Log.e("LoginActivity", "Erro no login: ${e.message}")
+                if (!e.message.toString().contains("User canceled")) {
+                    Toast.makeText(this@LoginActivity, "Erro ao conectar com Google", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@LoginActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun handleSignIn(result: GetCredentialResponse) {
+        val credential = result.credential
+
+        if (credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+
+            try {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                val idToken = googleIdTokenCredential.idToken
+
+                viewModel.loginWithGoogle(idToken)
+
+            } catch (e: Exception) {
+                Log.e("LoginActivity", "Erro ao extrair token", e)
+                Toast.makeText(this, "Erro ao processar dados do Google", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Log.e("LoginActivity", "Credencial desconhecida")
+        }
+    }
+
     private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.loginState.collect { resource ->
                 when (resource) {
                     is Resource.Loading -> {
                         binding.buttonLogin.isEnabled = false
+                        binding.buttonGoogleLogin.isEnabled = false
                         binding.buttonLogin.text = "Carregando..."
                     }
                     is Resource.Success -> {
                         binding.buttonLogin.isEnabled = true
+                        binding.buttonGoogleLogin.isEnabled = true
                         binding.buttonLogin.text = "Acessar"
                         navigateToHome()
                     }
                     is Resource.Error -> {
                         binding.buttonLogin.isEnabled = true
+                        binding.buttonGoogleLogin.isEnabled = true
                         binding.buttonLogin.text = "Acessar"
                         Toast.makeText(this@LoginActivity, "Erro: ${resource.message}", Toast.LENGTH_SHORT).show()
                     }

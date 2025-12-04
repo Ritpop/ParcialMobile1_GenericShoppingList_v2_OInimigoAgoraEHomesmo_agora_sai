@@ -4,6 +4,7 @@ import com.example.hypergenericlistforbuyingstuff.core.utils.Resource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.AuthDataSource
 import com.example.hypergenericlistforbuyingstuff.features.auth.data.source.UserDataSource
 import com.example.hypergenericlistforbuyingstuff.models.User
+import com.google.firebase.auth.FirebaseAuth
 
 class AuthRepositoryImpl(
     private val authDataSource: AuthDataSource,
@@ -19,6 +20,28 @@ class AuthRepositoryImpl(
             Resource.Error(e.message ?: "Erro desconhecido no login")
         }
     }
+    override suspend fun loginWithGoogle(idToken: String): Resource<User> {
+        return try {
+
+            val uid = authDataSource.loginWithGoogle(idToken)
+            var user = userDataSource.getUser(uid)
+
+            if (user.name.isBlank()) {
+                val firebaseUser = FirebaseAuth.getInstance().currentUser
+                val newUser = User(
+                    id = uid,
+                    name = firebaseUser?.displayName ?: "Usuário Google",
+                    email = firebaseUser?.email ?: ""
+                )
+                userDataSource.saveUser(newUser)
+                user = newUser
+            }
+            Resource.Success(user)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Erro no login com Google")
+        }
+    }
+
 
     override suspend fun register(name: String, email: String, password: String): Resource<User> {
         return try {

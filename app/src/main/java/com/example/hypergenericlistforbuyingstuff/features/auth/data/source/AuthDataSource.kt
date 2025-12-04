@@ -7,4 +7,5 @@ interface AuthDataSource {
     suspend fun logout()
     suspend fun getCurrentUserUid(): String?
     suspend fun recoverPassword(email: String)
+    suspend fun loginWithGoogle(idToken: String): String
 }
